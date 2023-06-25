@@ -13,6 +13,8 @@ class Reader
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!']
   KEYWORD_PREFIX = ':'
+  BOOLEAN_TYPES = ['true', 'false']
+  NIL_TYPE = 'nil'
 
   def initialize(tokens)
     @tokens = tokens
@@ -66,6 +68,10 @@ class Reader
       MalIntegerType.new(current)
     elsif SPECIAL_FORMS.include? current
       MalSpecialFormType.new(current)
+    elsif current == NIL_TYPE
+      MalNilType.new(current)
+    elsif BOOLEAN_TYPES.include? current
+      MalBooleanType.new(current)
     elsif SYMBOL_REGEX.match? current
       MalSymbolType.new(current)
     else

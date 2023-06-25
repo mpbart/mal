@@ -64,6 +64,12 @@ end
 class MalSymbolType < MalScalarType
 end
 
+class MalNilType < MalScalarType
+end
+
+class MalBooleanType < MalScalarType
+end
+
 class MalKeywordType < MalScalarType
 end
 
