@@ -5,8 +5,10 @@ class Printer
       pr_list_type(ast)
     when MalModifierType
       pr_modifier_type(ast)
-    when MalScalarType
+    when MalScalarType, MalBooleanType
       pr_scalar_type(ast)
+    when MalFunctionType
+      pr_function_type(ast)
     end
   end
 
@@ -20,5 +22,9 @@ class Printer
 
   def self.pr_modifier_type(type)
     '(' + type.identifier + pr_str(type.data) + ')'
+  end
+
+  def self.pr_function_type(type)
+    '#<function>'
   end
 end

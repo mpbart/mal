@@ -71,7 +71,7 @@ class Reader
     elsif current == NIL_TYPE
       MalNilType.new(current)
     elsif BOOLEAN_TYPES.include? current
-      MalBooleanType.new(current)
+      MalBooleanFactory.to_boolean(current)
     elsif SYMBOL_REGEX.match? current
       MalSymbolType.new(current)
     else

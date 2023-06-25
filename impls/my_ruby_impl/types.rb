@@ -67,7 +67,23 @@ end
 class MalNilType < MalScalarType
 end
 
-class MalBooleanType < MalScalarType
+class MalBooleanFactory
+  def self.to_boolean(data)
+    if data
+      MalTrueType.new(true)
+    else
+      MalFalseType.new(false)
+    end
+  end
+end
+
+class MalBooleanType < MalType
+end
+
+class MalTrueType < MalBooleanType
+end
+
+class MalFalseType < MalBooleanType
 end
 
 class MalKeywordType < MalScalarType
@@ -112,5 +128,11 @@ end
 class MalWithMetaType < MalModifierType
   def identifier
     'with-meta '
+  end
+end
+
+class MalFunctionType < MalType
+  def call(*args, **kwargs)
+    @data.call(args)
   end
 end
