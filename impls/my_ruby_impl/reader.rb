@@ -8,7 +8,7 @@ class Reader
   class EOFError < StandardError; end
 
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
-  INTEGER_REGEX = /[0-9]+/
+  INTEGER_REGEX = /^[0-9]+$/
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=]+/
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!']
