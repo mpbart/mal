@@ -45,7 +45,7 @@ class REPL
       when FUNCTION_SYMBOL
         # TODO: This should be wrapped in a MalFunctionType but attempting to do so
         # does not work properly
-        Proc.new{ |*args| evals(ast.data[2], Env.new(env, binds: ast.data[1].data, exprs: args)) }
+        MalFunctionType.new(Proc.new{ |*args| evals(ast.data[2], Env.new(env, binds: ast.data[1].data, exprs: args)) })
       else
         evaluated_list = Evaluator.eval_ast(ast, env)
         evaluated_list.data[0].call(*evaluated_list.data[1..].map)

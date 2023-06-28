@@ -133,6 +133,6 @@ end
 
 class MalFunctionType < MalType
   def call(*args, **kwargs)
-    @data.call(args)
+    @data.call(*args)
   end
 end
