@@ -1,5 +1,5 @@
 class Printer
-  def self.pr_str(ast)
+  def self.pr_str(ast, print_readably: false)
     case ast
     when MalCollectionType
       pr_list_type(ast)

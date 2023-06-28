@@ -13,6 +13,13 @@ class MalType
 end
 
 class MalScalarType < MalType
+  def ==(other)
+    other.data == data
+  end
+
+  def count
+    1
+  end
 end
 
 class MalCollectionType < MalType
@@ -31,6 +38,10 @@ class MalListType < MalCollectionType
 
   def end_char
     ')'
+  end
+
+  def ==(other)
+    other.data.length == data.length && other.data.zip(data).all?{ |i, j| i == j }
   end
 end
 
@@ -65,6 +76,9 @@ class MalSymbolType < MalScalarType
 end
 
 class MalNilType < MalScalarType
+  def count
+    0
+  end
 end
 
 class MalBooleanFactory
@@ -78,6 +92,9 @@ class MalBooleanFactory
 end
 
 class MalBooleanType < MalType
+  def ==(other)
+    self.class == other.class
+  end
 end
 
 class MalTrueType < MalBooleanType
@@ -134,5 +151,9 @@ end
 class MalFunctionType < MalType
   def call(*args, **kwargs)
     @data.call(*args)
+  end
+
+  def ==(other)
+    other.data.object_id == object_id
   end
 end

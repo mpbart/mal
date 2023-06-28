@@ -3,7 +3,7 @@ require_relative 'printer'
 require_relative 'evaluator'
 require_relative 'env'
 require_relative 'types'
-require 'pry'
+require_relative 'core'
 
 class REPL
   DEF_SYMBOL = 'def!'
@@ -35,16 +35,14 @@ class REPL
         Evaluator.eval_ast(ast.data[-1])
       when IF_SYMBOL
         result = evals(ast.data[1], env)
-        if !result.is_a?(MalNilClass) && !result.is_a?(MalFalseClass)
+        if !result.is_a?(MalNilType) && !result.is_a?(MalFalseType)
           evals(ast.data[2], env)
         else
-          return nil if ast.data[3].nil?
+          return MalNilType.new(nil) if ast.data[3].nil?
 
           evals(ast.data[3], env)
         end
       when FUNCTION_SYMBOL
-        # TODO: This should be wrapped in a MalFunctionType but attempting to do so
-        # does not work properly
         MalFunctionType.new(Proc.new{ |*args| evals(ast.data[2], Env.new(env, binds: ast.data[1].data, exprs: args)) })
       else
         evaluated_list = Evaluator.eval_ast(ast, env)
@@ -59,10 +57,7 @@ class REPL
 
   def self.rep
     env = Env.new(nil)
-    env.set(MalSymbolType.new('*'), Proc.new{ |a, b| MalIntegerType.new(a.data * b.data)})
-    env.set(MalSymbolType.new('/'), Proc.new{ |a, b| MalIntegerType.new(a.data / b.data)})
-    env.set(MalSymbolType.new('+'), Proc.new{ |a, b| MalIntegerType.new(a.data + b.data)})
-    env.set(MalSymbolType.new('-'), Proc.new{ |a, b| MalIntegerType.new(a.data - b.data)})
+    Core.ns.each { |key, value| env.set(key, value) }
 
     while true
       begin
