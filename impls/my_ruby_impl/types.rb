@@ -82,11 +82,16 @@ class MalNilType < MalScalarType
 end
 
 class MalBooleanFactory
+  class InvalidBooleanValueError < StandardError; end
+
   def self.to_boolean(data)
-    if data
+    case data
+    when "true", true
       MalTrueType.new(true)
-    else
+    when "false", false
       MalFalseType.new(false)
+    else
+      raise InvalidBooleanValueError.new("#{data} is not a valid boolean value")
     end
   end
 end
