@@ -11,7 +11,7 @@ class Reader
   INTEGER_REGEX = /^[0-9]+$/
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=]+/
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
-  SPECIAL_FORMS = ['let*', 'def!']
+  SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'
   BOOLEAN_TYPES = ['true', 'false']
   NIL_TYPE = 'nil'
