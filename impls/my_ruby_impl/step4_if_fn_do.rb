@@ -31,8 +31,7 @@ class REPL
         ast.data[1].data.each_slice(2) { |key, value| inner_env.set(key, evals(value, inner_env)) }
         evals(ast.data[2], inner_env)
       when DO_SYMBOL
-        ast.data[0...-1].each{ |item| Evaluator.eval_ast(item) }
-        Evaluator.eval_ast(ast.data[-1])
+        Evaluator.eval_ast(MalListType.new(ast.data[1..]), env).data.last
       when IF_SYMBOL
         result = evals(ast.data[1], env)
         if !result.is_a?(MalNilType) && !result.is_a?(MalFalseType)
