@@ -9,7 +9,7 @@ class Reader
 
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
   INTEGER_REGEX = /^[0-9]+$/
-  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=]+/
+  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'

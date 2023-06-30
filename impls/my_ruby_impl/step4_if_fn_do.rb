@@ -57,6 +57,7 @@ class REPL
   def self.rep
     env = Env.new(nil)
     Core.ns.each { |key, value| env.set(key, value) }
+    evals(Reader.read_str("(def! not (fn* (a) (if a false true)))"), env)
 
     while true
       begin
