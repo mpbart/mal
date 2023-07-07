@@ -8,11 +8,14 @@ class Reader
   class EOFError < StandardError; end
 
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
-  INTEGER_REGEX = /[0-9]+/
-  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*]+/
+  INTEGER_REGEX = /^[0-9]+$/
+  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
+  STRING_REGEX = /\".*\"/
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
-  SPECIAL_FORMS = ['let*', 'def!']
+  SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'
+  BOOLEAN_TYPES = ['true', 'false']
+  NIL_TYPE = 'nil'
 
   def initialize(tokens)
     @tokens = tokens
@@ -66,6 +69,12 @@ class Reader
       MalIntegerType.new(current)
     elsif SPECIAL_FORMS.include? current
       MalSpecialFormType.new(current)
+    elsif current == NIL_TYPE
+      MalNilType.new(current)
+    elsif STRING_REGEX.match? current
+      MalStringType.new(current[1...-1])
+    elsif BOOLEAN_TYPES.include? current
+      MalBooleanFactory.to_boolean(current)
     elsif SYMBOL_REGEX.match? current
       MalSymbolType.new(current)
     else

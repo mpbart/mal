@@ -13,6 +13,13 @@ class MalType
 end
 
 class MalScalarType < MalType
+  def ==(other)
+    other.data == data
+  end
+
+  def count
+    1
+  end
 end
 
 class MalCollectionType < MalType
@@ -22,6 +29,13 @@ class MalCollectionType < MalType
     @data = data || []
   end
   def_delegator :@data, :append, :<<
+  def_delegator :@data, :count, :count
+
+  def ==(other)
+    other.is_a?(MalCollectionType) &&
+      other.data.length == data.length &&
+      other.data.zip(data).all?{ |i, j| i == j }
+  end
 end
 
 class MalListType < MalCollectionType
@@ -64,7 +78,43 @@ end
 class MalSymbolType < MalScalarType
 end
 
+class MalNilType < MalScalarType
+  def count
+    0
+  end
+end
+
+class MalBooleanFactory
+  class InvalidBooleanValueError < StandardError; end
+
+  def self.to_boolean(data)
+    case data
+    when "true", true
+      MalTrueType.new(true)
+    when "false", false
+      MalFalseType.new(false)
+    else
+      raise InvalidBooleanValueError.new("#{data} is not a valid boolean value")
+    end
+  end
+end
+
+class MalBooleanType < MalType
+  def ==(other)
+    self.class == other.class
+  end
+end
+
+class MalTrueType < MalBooleanType
+end
+
+class MalFalseType < MalBooleanType
+end
+
 class MalKeywordType < MalScalarType
+  def ==(other)
+    other.is_a?(MalKeywordType) && other.data == data
+  end
 end
 
 class MalModifierType < MalType
@@ -106,5 +156,31 @@ end
 class MalWithMetaType < MalModifierType
   def identifier
     'with-meta '
+  end
+end
+
+class MalFunctionType < MalType
+  def call(*args, **kwargs)
+    @data.call(*args)
+  end
+
+  def ==(other)
+    other.data.object_id == object_id
+  end
+end
+
+class MalStringType < MalType
+  def data_str
+    value = data.dup
+
+    value.gsub!('\\','\\\\\\\\')
+    value.gsub!("\n",'\n')
+    value.gsub!('"','\"')
+
+    "\"#{value}\""
+  end
+
+  def ==(other)
+    other.is_a?(MalStringType) && other.data == data
   end
 end
