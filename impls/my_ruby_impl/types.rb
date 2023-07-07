@@ -160,6 +160,14 @@ class MalWithMetaType < MalModifierType
 end
 
 class MalFunctionType < MalType
+  attr_reader :ast, :params, :env
+
+  def initialize(ast:, params:, env:)
+    @ast = ast
+    @params = params
+    @env = env
+  end
+
   def call(*args, **kwargs)
     @data.call(*args)
   end
