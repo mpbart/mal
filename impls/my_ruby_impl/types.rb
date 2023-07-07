@@ -29,6 +29,13 @@ class MalCollectionType < MalType
     @data = data || []
   end
   def_delegator :@data, :append, :<<
+  def_delegator :@data, :count, :count
+
+  def ==(other)
+    other.is_a?(MalCollectionType) &&
+      other.data.length == data.length &&
+      other.data.zip(data).all?{ |i, j| i == j }
+  end
 end
 
 class MalListType < MalCollectionType
@@ -38,10 +45,6 @@ class MalListType < MalCollectionType
 
   def end_char
     ')'
-  end
-
-  def ==(other)
-    other.data.length == data.length && other.data.zip(data).all?{ |i, j| i == j }
   end
 end
 
@@ -109,6 +112,9 @@ class MalFalseType < MalBooleanType
 end
 
 class MalKeywordType < MalScalarType
+  def ==(other)
+    other.is_a?(MalKeywordType) && other.data == data
+  end
 end
 
 class MalModifierType < MalType
@@ -160,5 +166,21 @@ class MalFunctionType < MalType
 
   def ==(other)
     other.data.object_id == object_id
+  end
+end
+
+class MalStringType < MalType
+  def data_str
+    value = data.dup
+
+    value.gsub!('\\','\\\\\\\\')
+    value.gsub!("\n",'\n')
+    value.gsub!('"','\"')
+
+    "\"#{value}\""
+  end
+
+  def ==(other)
+    other.is_a?(MalStringType) && other.data == data
   end
 end

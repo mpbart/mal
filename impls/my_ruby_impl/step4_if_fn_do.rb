@@ -51,7 +51,7 @@ class REPL
   end
 
   def self.prints(evaluated_input)
-    Printer.pr_str(evaluated_input)
+    Printer.pr_str(evaluated_input, print_readably: true)
   end
 
   def self.rep
@@ -65,7 +65,7 @@ class REPL
         puts prints(evals(reads, env))
       rescue Reader::EOFError
         puts "ERROR: EOF"
-      rescue Reader::InvalidTokenError
+      rescue Reader::InvalidTokenError => e
         puts "ERROR: EOF - invalid token"
       rescue Evaluator::SymbolNotFound => e
         puts e

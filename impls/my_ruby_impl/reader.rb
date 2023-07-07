@@ -10,6 +10,7 @@ class Reader
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
   INTEGER_REGEX = /^[0-9]+$/
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
+  STRING_REGEX = /\".*\"/
   SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'
@@ -70,6 +71,8 @@ class Reader
       MalSpecialFormType.new(current)
     elsif current == NIL_TYPE
       MalNilType.new(current)
+    elsif STRING_REGEX.match? current
+      MalStringType.new(current[1...-1])
     elsif BOOLEAN_TYPES.include? current
       MalBooleanFactory.to_boolean(current)
     elsif SYMBOL_REGEX.match? current
