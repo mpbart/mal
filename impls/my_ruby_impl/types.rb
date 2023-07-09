@@ -13,7 +13,7 @@ class MalType
 end
 
 class MalScalarType < MalType
-  def ==(other)
+  def equals?(other)
     other.data == data
   end
 
@@ -31,7 +31,7 @@ class MalCollectionType < MalType
   def_delegator :@data, :append, :<<
   def_delegator :@data, :count, :count
 
-  def ==(other)
+  def equals?(other)
     other.is_a?(MalCollectionType) &&
       other.data.length == data.length &&
       other.data.zip(data).all?{ |i, j| i == j }
@@ -100,7 +100,7 @@ class MalBooleanFactory
 end
 
 class MalBooleanType < MalType
-  def ==(other)
+  def equals?(other)
     self.class == other.class
   end
 end
@@ -112,7 +112,7 @@ class MalFalseType < MalBooleanType
 end
 
 class MalKeywordType < MalScalarType
-  def ==(other)
+  def equals?(other)
     other.is_a?(MalKeywordType) && other.data == data
   end
 end
@@ -154,24 +154,30 @@ class MalWithMetaType < MalModifierType
 end
 
 class MalFunctionType < MalType
-  attr_reader :ast, :params, :env
+  attr_reader :ast, :params, :env, :fn
 
-  def initialize(ast:, params:, env:)
+  def initialize(ast:, params:, env:, fn:)
     @ast = ast
     @params = params
     @env = env
+    @fn = fn
   end
 
-  def call(*args, **kwargs)
-    @data.call(*args)
+  def call(*args, **_kwargs)
+    @fn.call(*args)
   end
 
-  def ==(other)
+  def equals?(other)
     other.data.object_id == object_id
   end
 end
 
 class MalStringType < MalType
+  def initialize(data)
+    data.gsub!(/\\./, {"\\\\" => "\\", "\\n" => "\n", "\\\"" => '"'})
+    @data = data
+  end
+
   def data_str
     value = data.dup
 
@@ -182,7 +188,7 @@ class MalStringType < MalType
     "\"#{value}\""
   end
 
-  def ==(other)
+  def equals?(other)
     other.is_a?(MalStringType) && other.data == data
   end
 end

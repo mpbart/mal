@@ -13,6 +13,10 @@ class Printer
       pr_function_type(ast)
     when MalStringType
       pr_str_type(ast, print_readably)
+    when MalSymbolType
+      ast.data
+    when MalAtomType
+      pr_atom_type(ast)
     end
   end
 
@@ -40,5 +44,9 @@ class Printer
     return type.data unless print_readably
 
     type.data_str
+  end
+
+  def self.pr_atom_type(type)
+    '(atom ' + pr_str(type.data).to_s + ')'
   end
 end
