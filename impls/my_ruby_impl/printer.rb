@@ -7,7 +7,7 @@ class Printer
       pr_modifier_type(ast)
     when MalNilType
       pr_nil_type
-    when MalScalarType, MalBooleanType
+    when MalScalarType, MalBooleanType, MalBuiltinType
       pr_scalar_type(ast)
     when MalFunctionType
       pr_function_type(ast)

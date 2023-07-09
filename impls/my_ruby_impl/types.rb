@@ -192,3 +192,21 @@ class MalStringType < MalType
     other.is_a?(MalStringType) && other.data == data
   end
 end
+
+class MalBuiltinType < MalType
+  def initialize(repr, &blk)
+    @repr = repr
+    @block = blk
+  end
+
+  def call(*args, **kwargs)
+    @block.call(*args, **kwargs)
+  end
+
+  def data_str
+    "#<MalBuiltinType: #{@repr}>"
+  end
+end
+
+class MalAtomType < MalType
+end
