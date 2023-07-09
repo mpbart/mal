@@ -123,12 +123,6 @@ end
 class MalSpecialFormType < MalType
 end
 
-class MalDerefType < MalModifierType
-  def identifier
-    'deref '
-  end
-end
-
 class MalUnquoteType < MalModifierType
   def identifier
     'unquote '

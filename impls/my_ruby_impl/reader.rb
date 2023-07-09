@@ -9,9 +9,9 @@ class Reader
 
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
   INTEGER_REGEX = /^[0-9]+$/
-  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
-  STRING_REGEX = /\".*\"/
-  SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
+  SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&\@]+/
+  STRING_REGEX = /\A"(?:\\.|[^\\"])*"\z/
+  SPECIAL_CHARS = ['~', '`', "'", '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'
   BOOLEAN_TYPES = ['true', 'false']
@@ -105,8 +105,6 @@ class Reader
   def read_modifier
     current = _next
     case current
-    when "@"
-      MalDerefType.new read_form
     when "~"
       MalUnquoteType.new read_form
     when "~@"
