@@ -10,12 +10,15 @@ class Reader
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
   INTEGER_REGEX = /^[0-9]+$/
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
-  STRING_REGEX = /\".*\"/
-  SPECIAL_CHARS = ['~', '`', "'", '@', '~@', '^']
+  DEREF_TOKEN = '@'
+  STRING_REGEX = /\A"(?:\\.|[^\\"])*"\z/
+  SPECIAL_CHARS = ['~', '`', "'", '~@', '^']
   SPECIAL_FORMS = ['let*', 'def!', 'do']
   KEYWORD_PREFIX = ':'
+  COMMENT_PREFIX = ';'
   BOOLEAN_TYPES = ['true', 'false']
   NIL_TYPE = 'nil'
+  COMMENT = :comment
 
   def initialize(tokens)
     @tokens = tokens
@@ -63,6 +66,13 @@ class Reader
 
     if current.nil?
       raise EOFError.new
+    elsif current && current[0] == COMMENT_PREFIX
+      COMMENT
+    elsif current && current == DEREF_TOKEN
+      m = MalListType.new
+      m.data << MalSymbolType.new('deref')
+      m.data << read_form
+      m
     elsif current && current[0] == KEYWORD_PREFIX
       MalKeywordType.new(current)
     elsif INTEGER_REGEX.match? current
@@ -70,7 +80,7 @@ class Reader
     elsif SPECIAL_FORMS.include? current
       MalSpecialFormType.new(current)
     elsif current == NIL_TYPE
-      MalNilType.new(current)
+      MalNilType.new(nil)
     elsif STRING_REGEX.match? current
       MalStringType.new(current[1...-1])
     elsif BOOLEAN_TYPES.include? current
@@ -96,7 +106,7 @@ class Reader
       next_token = read_form
       break unless next_token
 
-      list << next_token
+      list << next_token unless comment?(next_token)
     end
 
     list
@@ -105,8 +115,6 @@ class Reader
   def read_modifier
     current = _next
     case current
-    when "@"
-      MalDerefType.new read_form
     when "~"
       MalUnquoteType.new read_form
     when "~@"
@@ -118,5 +126,9 @@ class Reader
     when "^"
       MalWithMetaType.new read_form
     end
+  end
+
+  def comment?(next_token)
+    next_token == COMMENT
   end
 end
