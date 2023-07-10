@@ -71,8 +71,14 @@ class REPL
     env = Env.new(nil)
     Core.ns.each { |key, value| env.set(key, value) }
     env.set(MalSymbolType.new('eval'), Proc.new{ |ast| evals(ast, env) })
+    env.set(MalSymbolType.new('*ARGV*'), MalListType.new(Array(ARGV[1..])))
     evals(Reader.read_str("(def! not (fn* (a) (if a false true)))"), env)
     evals(Reader.read_str('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))'), env)
+
+    if ARGV[0]
+      prints(evals(Reader.read_str("load-file #{ARGV[0]}"), env))
+      return
+    end
 
     while true
       begin
