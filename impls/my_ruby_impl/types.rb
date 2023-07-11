@@ -199,8 +199,8 @@ class MalBuiltinType < MalType
     @block = blk
   end
 
-  def call(*args, **kwargs)
-    @block.call(*args, **kwargs)
+  def call(*args, **_kwargs)
+    @block.call(*args)
   end
 
   def data_str
