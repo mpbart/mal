@@ -14,7 +14,7 @@ end
 
 class MalScalarType < MalType
   def equals?(other)
-    other.data == data
+    other.data == data && other.class == self.class
   end
 
   def count
