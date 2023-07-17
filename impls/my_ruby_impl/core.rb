@@ -28,6 +28,8 @@ module Core
         MalSymbolType.new('@') => MalBuiltinType.new('@'){ |*args| args[0].data },
         MalSymbolType.new('reset!') => MalBuiltinType.new('reset!'){ |*args| args[0].data = args[1]; args[1] },
         MalSymbolType.new('swap!') => MalBuiltinType.new('swap!'){ |*args| args[0].data = args[1].call(args[0].data, *args[2..]); args[0].data },
+        MalSymbolType.new('cons') => MalBuiltinType.new('cons'){ |*args| MalListType.new([args[0]] + args[1].data) },
+        MalSymbolType.new('concat') => MalBuiltinType.new('concat'){ |*args| MalListType.new(args.each_with_object([]) { |i, acc| acc.concat(i.data) })},
       }
     end
   end

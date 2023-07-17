@@ -14,7 +14,7 @@ end
 
 class MalScalarType < MalType
   def equals?(other)
-    other.data == data
+    other.data == data && other.class == self.class
   end
 
   def count
@@ -199,8 +199,8 @@ class MalBuiltinType < MalType
     @block = blk
   end
 
-  def call(*args, **kwargs)
-    @block.call(*args, **kwargs)
+  def call(*args, **_kwargs)
+    @block.call(*args)
   end
 
   def data_str

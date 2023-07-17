@@ -13,7 +13,7 @@ class Reader
   DEREF_TOKEN = '@'
   STRING_REGEX = /\A"(?:\\.|[^\\"])*"\z/
   SPECIAL_CHARS = ['~', '`', "'", '~@', '^']
-  SPECIAL_FORMS = ['let*', 'def!', 'do']
+  SPECIAL_FORMS = ['let*', 'def!', 'do', 'quote', 'quasiquote']
   KEYWORD_PREFIX = ':'
   COMMENT_PREFIX = ';'
   BOOLEAN_TYPES = ['true', 'false']
