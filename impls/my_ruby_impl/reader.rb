@@ -12,7 +12,7 @@ class Reader
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
   DEREF_TOKEN = '@'
   STRING_REGEX = /\A"(?:\\.|[^\\"])*"\z/
-  SPECIAL_CHARS = ['~', '`', "'", '~@', '^']
+  SPECIAL_FORM_ALIASES = {'~' => 'unquote', '`' => 'quasiquote', "'" => 'quote', '~@' => 'splice-unquote'}
   SPECIAL_FORMS = ['let*', 'def!', 'do', 'quote', 'quasiquote']
   KEYWORD_PREFIX = ':'
   COMMENT_PREFIX = ';'
@@ -54,8 +54,6 @@ class Reader
     when ')', ']', '}'
       _next
       return
-    when *SPECIAL_CHARS
-      read_modifier
     else
       read_atom
     end
@@ -77,6 +75,11 @@ class Reader
       MalKeywordType.new(current)
     elsif INTEGER_REGEX.match? current
       MalIntegerType.new(current)
+    elsif SPECIAL_FORM_ALIASES.keys.include? current
+      m = MalListType.new
+      m.data << MalSymbolType.new(SPECIAL_FORM_ALIASES[current])
+      m.data << read_form
+      m
     elsif SPECIAL_FORMS.include? current
       MalSpecialFormType.new(current)
     elsif current == NIL_TYPE
@@ -110,22 +113,6 @@ class Reader
     end
 
     list
-  end
-
-  def read_modifier
-    current = _next
-    case current
-    when "~"
-      MalUnquoteType.new read_form
-    when "~@"
-      MalSpliceUnquoteType.new read_form
-    when "'"
-      MalQuoteType.new read_form
-    when "`"
-      MalQuasiQuoteType.new read_form
-    when "^"
-      MalWithMetaType.new read_form
-    end
   end
 
   def comment?(next_token)
