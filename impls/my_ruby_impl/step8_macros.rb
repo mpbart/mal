@@ -53,7 +53,7 @@ class REPL
             end
           end
         when FUNCTION_SYMBOL
-          return MalFunctionType.new(ast: ast.data[2], params: ast.data[1].data, env: env, fn: Proc.new{ |*args| evals(ast.data[2], Env.new(env, binds: ast.data[1].data, exprs: args) )})
+          return MalFunctionType.new(ast: ast.data[2], params: ast.data[1].data, env: env, fn: Proc.new{ |*args| evals(ast.data[2], Env.new(env, binds: ast.data[1].data, exprs: args.flatten) )})
         when *QUOTE_SYMBOLS
           return ast.data[1]
         when *QUASIQUOTE_SYMBOLS
