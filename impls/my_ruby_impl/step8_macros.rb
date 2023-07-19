@@ -12,6 +12,8 @@ class REPL
   DO_SYMBOL = 'do'
   IF_SYMBOL = 'if'
   FUNCTION_SYMBOL = 'fn*'
+  DEF_MACRO_SYMBOL = 'defmacro!'
+  MACROEXPAND_SYMBOL = 'macroexpand'
   QUOTE_SYMBOLS = ['quote', "'"]
   QUASIQUOTE_SYMBOLS = ['quasiquote', '`']
   QUASIQUOTEEXPAND_SYMBOLS = 'quasiquoteexpand'
@@ -30,9 +32,16 @@ class REPL
       elsif ast.data.empty?
         return ast
       else
+        ast = macro_expand(ast, env)
+        return Evaluator.eval_ast(ast, env) unless ast.is_a?(MalListType)
+
         case ast.data[0].data
         when DEF_SYMBOL
           return env.set(ast.data[1], evals(ast.data[2], env))
+        when DEF_MACRO_SYMBOL
+          value = evals(ast.data[2], env)
+          value.is_macro = true
+          return env.set(ast.data[1], value)
         when LET_SYMBOL
           inner_env = Env.new(env)
           ast.data[1].data.each_slice(2) { |key, value| inner_env.set(key, evals(value, inner_env)) }
@@ -60,6 +69,8 @@ class REPL
           ast = quasiquote(ast.data[1])
         when *QUASIQUOTEEXPAND_SYMBOLS
           return quasiquote(ast.data[1])
+        when MACROEXPAND_SYMBOL
+          return macro_expand(ast.data[1], env)
         else
           evaluated_list = Evaluator.eval_ast(ast, env)
           f, args = evaluated_list.data[0], evaluated_list.data[1..]
@@ -129,6 +140,24 @@ class REPL
     else
       ast
     end
+  end
+
+  def self.is_macro_call?(ast, env)
+    if ast.is_a?(MalListType) && ast.data[0].is_a?(MalSymbolType)
+      value = env.find(ast.data[0])
+      return value && value.is_a?(MalFunctionType) && value.is_macro
+    else
+      false
+    end
+  end
+
+  def self.macro_expand(ast, env)
+    while is_macro_call?(ast, env)
+      func = env.get(ast.data[0])
+      ast = func.call(ast.data[1..])
+    end
+
+    ast
   end
 end
 
