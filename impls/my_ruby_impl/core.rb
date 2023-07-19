@@ -1,5 +1,7 @@
 require 'pry'
 module Core
+  class IndexOutOfRange < StandardError; end
+
   class << self
     def ns
       @ns ||= {
@@ -30,6 +32,9 @@ module Core
         MalSymbolType.new('swap!') => MalBuiltinType.new('swap!'){ |*args| args[0].data = args[1].call(args[0].data, *args[2..]); args[0].data },
         MalSymbolType.new('cons') => MalBuiltinType.new('cons'){ |*args| MalListType.new([args[0]] + args[1].data) },
         MalSymbolType.new('concat') => MalBuiltinType.new('concat'){ |*args| MalListType.new(args.each_with_object([]) { |i, acc| acc.concat(i.data) })},
+        MalSymbolType.new('nth') => MalBuiltinType.new('nth'){ |*args| raise Core::IndexOutOfRange unless args[0].data.length >= args[1].data; args[0].data[args[1].data] },
+        MalSymbolType.new('first') => MalBuiltinType.new('first'){ |*args| Array(args[0].data).first || MalNilType.new(nil) },
+        MalSymbolType.new('rest') => MalBuiltinType.new('rest'){ |*args| MalListType.new(Array(Array(args[0].data)[1..])) },
       }
     end
   end

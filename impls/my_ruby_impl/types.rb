@@ -155,12 +155,14 @@ end
 
 class MalFunctionType < MalType
   attr_reader :ast, :params, :env, :fn
+  attr_accessor :is_macro
 
   def initialize(ast:, params:, env:, fn:)
     @ast = ast
     @params = params
     @env = env
     @fn = fn
+    @is_macro = false
   end
 
   def call(*args, **_kwargs)
