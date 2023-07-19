@@ -96,6 +96,7 @@ class REPL
     env.set(MalSymbolType.new('*ARGV*'), MalListType.new(Array(ARGV[1..])))
     evals(Reader.read_str("(def! not (fn* (a) (if a false true)))"), env)
     evals(Reader.read_str('(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))'), env)
+    evals(Reader.read_str("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"), env)
 
     if ARGV[0]
       prints(evals(Reader.read_str("load-file #{ARGV[0]}"), env))
@@ -112,6 +113,8 @@ class REPL
         puts "ERROR: EOF - invalid token"
       rescue Evaluator::SymbolNotFound => e
         puts e
+      rescue Core::IndexOutOfRange => e
+        puts "ERROR: index out of range"
       end
     end
   end
