@@ -35,6 +35,13 @@ module Core
         MalSymbolType.new('nth') => MalBuiltinType.new('nth'){ |*args| raise Core::IndexOutOfRange unless args[0].data.length > args[1].data; args[0].data[args[1].data] },
         MalSymbolType.new('first') => MalBuiltinType.new('first'){ |*args| Array(args[0].data).first || MalNilType.new(nil) },
         MalSymbolType.new('rest') => MalBuiltinType.new('rest'){ |*args| MalListType.new(Array(Array(args[0].data)[1..])) },
+        MalSymbolType.new('throw') => MalBuiltinType.new('throw'){ |*args| raise MalExceptionType.new(args[0].data) },
+        MalSymbolType.new('apply') => MalBuiltinType.new('apply'){ |*args| args[0].call(*args[1...-1].map{ |i| i }.concat(args[-1].data)) },
+        MalSymbolType.new('map') => MalBuiltinType.new('map'){ |*args| MalListType.new(args[1].data.map{ |i| args[0].fn.call(i) }) },
+        MalSymbolType.new('nil?') => MalBuiltinType.new('nil?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalNilType)) },
+        MalSymbolType.new('true?') => MalBuiltinType.new('true?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalTrueType)) },
+        MalSymbolType.new('false?') => MalBuiltinType.new('false?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalFalseType)) },
+        MalSymbolType.new('symbol?') => MalBuiltinType.new('symbol?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalSymbolType)) },
       }
     end
   end

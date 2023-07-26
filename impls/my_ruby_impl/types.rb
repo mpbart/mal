@@ -196,9 +196,12 @@ class MalStringType < MalType
 end
 
 class MalBuiltinType < MalType
+  attr_reader :fn
+
   def initialize(repr, &blk)
     @repr = repr
     @block = blk
+    @fn = blk
   end
 
   def call(*args, **_kwargs)
@@ -211,4 +214,7 @@ class MalBuiltinType < MalType
 end
 
 class MalAtomType < MalType
+end
+
+class MalExceptionType < StandardError
 end
