@@ -1,7 +1,7 @@
 class Printer
   def self.pr_str(ast, print_readably: false)
     case ast
-    when MalCollectionType
+    when MalCollectionType, MalHashMapType
       pr_list_type(ast, print_readably)
     when MalModifierType
       pr_modifier_type(ast)
@@ -21,7 +21,7 @@ class Printer
   end
 
   def self.pr_list_type(type, print_readably)
-    type.begin_char + type.data.map { |d| pr_str(d, print_readably: print_readably) }.join(' ') + type.end_char
+    type.begin_char + type.data_str.map { |d| pr_str(d, print_readably: print_readably) }.join(' ') + type.end_char
   end
 
   def self.pr_scalar_type(type)

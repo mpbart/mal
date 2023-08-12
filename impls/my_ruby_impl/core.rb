@@ -42,6 +42,20 @@ module Core
         MalSymbolType.new('true?') => MalBuiltinType.new('true?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalTrueType)) },
         MalSymbolType.new('false?') => MalBuiltinType.new('false?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalFalseType)) },
         MalSymbolType.new('symbol?') => MalBuiltinType.new('symbol?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalSymbolType)) },
+        MalSymbolType.new('keyword?') => MalBuiltinType.new('keyword?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalKeywordType)) },
+        MalSymbolType.new('symbol') => MalBuiltinType.new('symbol'){ |*args| MalSymbolType.new(args[0].data) },
+        MalSymbolType.new('keyword') => MalBuiltinType.new('keyword'){ |*args| args[0].is_a?(MalKeywordType) ? args[0] : MalKeywordType.new(':' + args[0].data) },
+        MalSymbolType.new('sequential?') => MalBuiltinType.new('sequential?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalSequentialType)) },
+        MalSymbolType.new('hash-map') => MalBuiltinType.new('hash-map'){ |*args| MalHashMapType.new(args) },
+        MalSymbolType.new('map?') => MalBuiltinType.new('map?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalHashMapType)) },
+        MalSymbolType.new('assoc') => MalBuiltinType.new('assoc'){ |*args| MalHashMapType.new(args[0].data + args[1..]) },
+        MalSymbolType.new('dissoc') => MalBuiltinType.new('dissoc'){ |*args| MalHashMapType.new(Array(args[0].remove_keys(args[1..]).map.reduce(&:concat))) },
+        MalSymbolType.new('get') => MalBuiltinType.new('get'){ |*args| args[0].get(args[1]) },
+        MalSymbolType.new('contains?') => MalBuiltinType.new('contains?'){ |*args| args[0].contains?(args[1]) },
+        MalSymbolType.new('keys') => MalBuiltinType.new('keys'){ |*args| MalListType.new(args[0].keys) },
+        MalSymbolType.new('vals') => MalBuiltinType.new('vals'){ |*args| MalListType.new(args[0].vals) },
+        MalSymbolType.new('vector?') => MalBuiltinType.new('vector?'){ |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalVectorType)) },
+        MalSymbolType.new('vector') => MalBuiltinType.new('vector'){ |*args| MalVectorType.new(args) },
       }
     end
   end
