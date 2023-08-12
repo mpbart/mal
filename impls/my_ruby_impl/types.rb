@@ -16,6 +16,11 @@ class MalScalarType < MalType
   def equals?(other)
     other.data == data && other.class == self.class
   end
+  alias_method :eql?, :equals?
+
+  def hash
+    data.hash
+  end
 
   def count
     1
@@ -25,8 +30,8 @@ end
 class MalCollectionType < MalType
   extend Forwardable
 
-  def initialize(data = nil)
-    @data = data || []
+  def initialize(data = [])
+    @data = data
   end
   def_delegator :@data, :append, :<<
   def_delegator :@data, :count, :count
@@ -34,11 +39,14 @@ class MalCollectionType < MalType
   def equals?(other)
     other.is_a?(MalCollectionType) &&
       other.data.length == data.length &&
-      other.data.zip(data).all?{ |i, j| i == j }
+      other.data.zip(data).all?{ |i, j| i.equals?(j) }
   end
 end
 
-class MalListType < MalCollectionType
+class MalSequentialType < MalCollectionType
+end
+
+class MalListType < MalSequentialType
   def begin_char
     '('
   end
@@ -48,7 +56,7 @@ class MalListType < MalCollectionType
   end
 end
 
-class MalVectorType < MalCollectionType
+class MalVectorType < MalSequentialType
   def begin_char
     '['
   end
@@ -58,13 +66,57 @@ class MalVectorType < MalCollectionType
   end
 end
 
-class MalHashMapType < MalCollectionType
+class MalHashMapType < MalType
+  extend Forwardable
+
+  def initialize(data = [])
+    @hash = data.each_slice(2).each_with_object({}) { |(k, v), acc| acc[k] = v }
+    @data = data
+  end
+  def_delegator :@data, :append, :<<
+  def_delegator :@data, :count, :count
+
+  def data_str
+    Array(@hash.each_pair.reduce(&:concat))
+  end
+
   def begin_char
     '{'
   end
 
   def end_char
     '}'
+  end
+
+  def remove_keys(ignore_keys)
+    key_data = ignore_keys.map(&:data)
+    @hash.reject{ |k| key_data.include?(k.data) }
+  end
+
+  def get(key)
+    return @hash[key] if @hash.key?(key)
+
+    MalNilType.new(nil)
+  end
+
+  def contains?(key)
+    if @hash.key?(key)
+      MalTrueType.new(true)
+    else
+      MalFalseType.new(false)
+    end
+  end
+
+  def keys
+    @hash.keys
+  end
+
+  def vals
+    @hash.values
+  end
+
+  def equals?(other)
+    other.class == MalHashMapType && keys.count == other.keys.count && other.keys.all?{ |key| contains?(key) && other.get(key).equals?(get(key)) }
   end
 end
 
@@ -190,15 +242,26 @@ class MalStringType < MalType
     "\"#{value}\""
   end
 
+  def eql?(other)
+    data == other.data && other.class == self.class
+  end
+
+  def hash
+    data.hash
+  end
+
   def equals?(other)
     other.is_a?(MalStringType) && other.data == data
   end
 end
 
 class MalBuiltinType < MalType
+  attr_reader :fn
+
   def initialize(repr, &blk)
     @repr = repr
     @block = blk
+    @fn = blk
   end
 
   def call(*args, **_kwargs)
@@ -211,4 +274,7 @@ class MalBuiltinType < MalType
 end
 
 class MalAtomType < MalType
+end
+
+class MalExceptionType < StandardError
 end
