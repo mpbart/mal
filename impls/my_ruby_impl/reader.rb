@@ -8,7 +8,7 @@ class Reader
   class EOFError < StandardError; end
 
   LINE_REGEX = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/
-  INTEGER_REGEX = /^[0-9]+$/
+  INTEGER_REGEX = /^\-?[0-9]+$/
   SYMBOL_REGEX = /[0-9a-zA-Z\/\+\-\*\<\>\=\&]+/
   DEREF_TOKEN = '@'
   STRING_REGEX = /\A"(?:\\.|[^\\"])*"\z/
