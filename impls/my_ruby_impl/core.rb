@@ -1,4 +1,3 @@
-require 'pry'
 module Core
   class IndexOutOfRange < StandardError; end
 
@@ -74,5 +73,4 @@ module Core
   add_builtin('vector')     { |*args| MalVectorType.new(args) }
   add_builtin('vector?')    { |*args| MalBooleanFactory.to_boolean(args[0].is_a?(MalVectorType)) }
   add_builtin('with-meta')  { |*args| MalNilType.new(nil) }
-
 end

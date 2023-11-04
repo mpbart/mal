@@ -7,12 +7,8 @@ class Evaluator
     case ast
     when MalSymbolType
       env.get(ast)
-    when MalListType
-      MalListType.new(ast.data.map{ |item| REPL.evals(item, env) })
-    when MalVectorType
-      MalVectorType.new(ast.data.map{ |item| REPL.evals(item, env) })
-    when MalHashMapType
-      MalHashMapType.new(ast.data.map{ |item| REPL.evals(item, env) })
+    when MalListType, MalVectorType, MalHashMapType
+      ast.class.new(ast.data.map{ |item| REPL.evals(item, env) })
     else
       ast
     end
